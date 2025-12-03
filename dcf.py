@@ -17,14 +17,14 @@ def project_fcf(
 
     All rates are given in decimals
     """
-    revenues: List[float] =[]  #these lines create empty lists that hold values
-    ebitdas: List[float] =[]
-    ebits: List[float] =[]
-    deprec_amor: List[float] =[]
-    nwcs: List[float] =[]
-    change_nwcs: List[float] =[]
-    capexs: List[float] =[]
-    fcfs: List[float] =[]
+    revenues: List[float] = []  #these lines create empty lists that hold values
+    ebitdas: List[float] = []
+    ebits: List[float] = []
+    deprec_amor: List[float] = []
+    nwcs: List[float] = []
+    change_nwcs: List[float] = []
+    capexs: List[float] = []
+    fcfs: List[float] = []
 
     # I assume base year net working capital (NWC) is tied to starting revenue
     nwc_prev = start_revenue * nwc_pct_revenue
