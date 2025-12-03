@@ -1,4 +1,6 @@
 from typing import List, Literal, Optional
+import numpy as np
+
 
 def project_fcf(
     start_revenue: float,
@@ -113,7 +115,7 @@ def dcf_calculation(
     equity_value = enterprise_value - net_debt
 
     price_per_share: Optional[float] = None
-    if shares_outstanding and shares_outstanding > 0:
+    if shares_outstanding is not None and shares_outstanding > 0:
         price_per_share = equity_value / shares_outstanding
     
     return {
@@ -124,6 +126,128 @@ def dcf_calculation(
         "enterprise_value": enterprise_value,
         "equity_value": equity_value,
         "price_per_share": price_per_share
+    }
+
+
+
+def monte_carlo_dcf(
+    number_of_sims: int,
+    start_revenue: float,
+    years: int,
+    revenue_growth_mean: float,
+    revenue_growth_std: float,
+    ebitda_margin_mean: float,
+    ebitda_margin_std: float,
+    deprec_amor_pct_revenue: float,
+    capex_pct_revenue: float,
+    nwc_pct_revenue: float,
+    tax_rate: float,
+    wacc_mean: float,
+    wacc_std: float,
+    terminal_growth: float,
+    net_debt: float,
+    shares_outstanding: float,
+):
+    """
+    Runs a monte carlo DCF sim, randomizes financial inputs (e.g growth, 
+    EBITDA margin, and WACC) each simulation 
+    """
+    prices = []
+
+    for _ in range(number_of_sims):
+        growth = np.random.normal(revenue_growth_mean, revenue_growth_std)
+        ebitda_margin = np.random.normal(ebitda_margin_mean, ebitda_margin_std)
+        wacc = np.random.normal(wacc_mean, wacc_std)
+
+        # logical limitations
+        growth = max(growth, -0.3)
+        ebitda_margin = min(max(ebitda_margin, 0.05), 0.6)
+        wacc = max(wacc, 0.02)
+
+        projections = project_fcf(
+            start_revenue = start_revenue,
+            years = years,
+            revenue_growth = growth,
+            ebitda_margin = ebitda_margin,
+            deprec_amor_pct_revenue = deprec_amor_pct_revenue,
+            capex_pct_revenue = capex_pct_revenue,
+            nwc_pct_revenue = nwc_pct_revenue,
+            tax_rate = tax_rate,
+        )
+
+        fcfs = projections["fcfs"]
+        last_year_ebitda = projections["ebitdas"][-1]
+
+        result = dcf_calculation(
+            fcfs = fcfs,
+            wacc = wacc,
+            terminal_method = "perpetuity",
+            last_year_ebitda = last_year_ebitda,
+            terminal_growth = terminal_growth,
+            net_debt = net_debt,
+            shares_outstanding = shares_outstanding,
+        )
+
+        if result["price_per_share"] is not None:
+            prices.append(result["price_per_share"])
+    
+    return np.array(prices)
+
+def monte_carlo_neat(
+    number_of_sims: int,
+    start_revenue: float,
+    years: int,
+    revenue_growth_mean: float,
+    revenue_growth_std: float,
+    ebitda_margin_mean: float,
+    ebitda_margin_std: float,
+    deprec_amor_pct_revenue: float,
+    capex_pct_revenue: float,
+    nwc_pct_revenue: float,
+    tax_rate: float,
+    wacc_mean: float,
+    wacc_std: float,
+    terminal_growth: float,
+    net_debt: float,
+    shares_outstanding: float,
+):
+    """
+    runs monte carlo sim and returns it in a neat readable format
+    """
+    prices = monte_carlo_dcf(
+        number_of_sims,
+        start_revenue,
+        years,
+        revenue_growth_mean,
+        revenue_growth_std,
+        ebitda_margin_mean,
+        ebitda_margin_std,
+        deprec_amor_pct_revenue,
+        capex_pct_revenue,
+        nwc_pct_revenue,
+        tax_rate,
+        wacc_mean,
+        wacc_std,
+        terminal_growth,
+        net_debt,
+        shares_outstanding
+    )
+
+    if prices.size == 0:
+        return None
+
+    mean = float(prices.mean())
+    std = float(prices.std())
+    p5, p25, p50, p75, p95 = [float(x) for x in np.percentile(prices, [5,25,50,75,95])]
+
+    return {
+        "mean": mean,
+        "std": std,
+        "p5": p5,
+        'p25': p25,
+        "p50": p50,
+        "p75": p75,
+        "p95": p95,
     }
 
 def main():
