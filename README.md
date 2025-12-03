@@ -8,12 +8,15 @@ A collection of lightweight Python finance models built from scratch:
 
 All models are written to be clean, reusable, and easy to run from IPython or a script.
 
-How to run
+To run the DCF model, open a terminal in the repository folder and run:
+python dcf.py
+This prints a full sample valuation including projected free cash flows, discounting, terminal value, enterprise value, and implied price per share.
 
-Install numpy
+To use the DCF functions interactively (for your own assumptions), open Python or IPython and import:
+from dcf import project_fcf, dcf_calculation, monte_carlo_dcf, monte_carlo_neat
 
-Run the DCF model: python dcf.py
+To use the LBO model, import:
+from lbo import easy_lbo
+Then call easy_lbo with your chosen inputs to get IRR, MOIC, EBITDA path, and debt paydown.
 
-Or import the functions in IPython: from dcf import project_fcf, dcf_calculation, monte_carlo_neat
-
-For the LBO model: from lbo import easy_lbo
+The only required dependency is numpy.
