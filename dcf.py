@@ -276,28 +276,28 @@ def main():
     shares_outstanding = 50.0
 
     projections = project_fcf(
-        start_revenue=start_revenue,
-        years=years,
-        revenue_growth=revenue_growth,
-        ebitda_margin=ebitda_margin,
-        deprec_amor_pct_revenue=deprec_amor_pct_revenue,
-        capex_pct_revenue=capex_pct_revenue,
-        nwc_pct_revenue=nwc_pct_revenue,
-        tax_rate=tax_rate,
+        start_revenue = start_revenue,
+        years = years,
+        revenue_growth = revenue_growth,
+        ebitda_margin = ebitda_margin,
+        deprec_amor_pct_revenue = deprec_amor_pct_revenue,
+        capex_pct_revenue = capex_pct_revenue,
+        nwc_pct_revenue = nwc_pct_revenue,
+        tax_rate = tax_rate,
     )
 
     fcfs = projections["fcfs"]
     last_year_ebitda = projections["ebitdas"][-1]
 
     dcf_result = dcf_calculation(
-        fcfs=fcfs,
-        wacc=wacc,
-        terminal_method=terminal_method,
-        last_year_ebitda=last_year_ebitda,
-        terminal_growth=terminal_growth,
-        exit_multiple=exit_multiple,
-        net_debt=net_debt,
-        shares_outstanding=shares_outstanding,
+        fcfs = fcfs,
+        wacc = wacc,
+        terminal_method = terminal_method,
+        last_year_ebitda = last_year_ebitda,
+        terminal_growth = terminal_growth,
+        exit_multiple = exit_multiple,
+        net_debt = net_debt,
+        shares_outstanding = shares_outstanding,
     )
 
     print("=== DCF SUMMARY ===")
